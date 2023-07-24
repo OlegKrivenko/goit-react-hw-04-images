@@ -85,10 +85,6 @@ class App extends Component {
     this.setState(({ page }) => ({ page: page + 1 }));
   };
 
-  toggleOnLoading = () => {
-    this.setState(({ isLoading }) => ({ isLoading: !isLoading }));
-  };
-
   render() {
     const {
       searchQuery,
@@ -113,11 +109,7 @@ class App extends Component {
           </h2>
         )}
 
-        <ImageGallery
-          images={images}
-          openModal={this.openModal}
-          toggleOnLoading={this.toggleOnLoading}
-        />
+        <ImageGallery images={images} openModal={this.openModal} />
 
         {showLoadMore && <Button onLoadMore={this.onLoadMore} />}
 
