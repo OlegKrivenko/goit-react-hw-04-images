@@ -13,6 +13,7 @@ const Modal = ({ closeModal, largeImageURL }) => {
       console.log('componentWillUnmount');
       window.removeEventListener('keydown', closeModalEsc);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const closeModalEsc = event => {
