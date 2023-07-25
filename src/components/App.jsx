@@ -22,6 +22,7 @@ const App = () => {
 
   useEffect(() => {
     console.log('useEffect');
+
     if (searchQuery !== '') {
       handleGetImages(searchQuery, page);
     }
@@ -29,6 +30,7 @@ const App = () => {
 
   const handleGetImages = (searchQuery, page) => {
     console.log('handleGetImages');
+
     setIsLoading(true);
     setShowLoadMore(false);
 
@@ -50,6 +52,7 @@ const App = () => {
 
   const handleFormSubmit = query => {
     console.log('handleFormSubmit');
+
     setSearchQuery(query);
     setImages([]);
     setPage(1);
@@ -60,18 +63,21 @@ const App = () => {
 
   const openModal = largeImageURL => {
     console.log('openModal');
+
     setShowModal(!showModal);
     setLargeImageURL(largeImageURL);
   };
 
   const closeModal = () => {
     console.log('closeModal');
+
     setShowModal(!showModal);
     setLargeImageURL('');
   };
 
   const onLoadMore = () => {
     console.log('onLoadMore');
+
     setPage(prev => prev + 1);
   };
 
