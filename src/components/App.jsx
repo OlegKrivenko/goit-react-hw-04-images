@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useEffect, useState } from 'react';
 
 import Searchbar from './Searchbar';
 import fetchData from 'services/fetchData';
@@ -9,118 +9,201 @@ import Modal from './Modal';
 
 import css from './App.module.css';
 
-class App extends Component {
-  state = {
-    searchQuery: '',
-    images: [],
-    page: 1,
-    showModal: false,
-    largeImageURL: '',
-    isLoading: false,
-    error: '',
-    showLoadMore: false,
-    isEmpty: false,
-  };
+const App = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [largeImageURL, setLargeImageURL] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [showLoadMore, setShowLoadMore] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
 
-  componentDidUpdate(prevProps, prevState) {
-    const prevQuery = prevState.searchQuery;
-    const newQuery = this.state.searchQuery;
-    const prevPage = prevState.page;
-    const newPage = this.state.page;
+  useEffect(() => {
+    handleGetImages(searchQuery, page);
+  }, [searchQuery, page]);
 
-    if (prevQuery !== newQuery || prevPage !== newPage) {
-      this.handleGetImages(newQuery, newPage);
-    }
-  }
-
-  handleGetImages(searchQuery, page) {
-    this.setState({ isLoading: true, showLoadMore: false });
+  const handleGetImages = (searchQuery, page) => {
+    setIsLoading(true);
+    setShowLoadMore(false);
 
     fetchData(searchQuery, page)
       .then(({ hits, totalHits }) => {
         if (hits.length === 0) {
-          this.setState({
-            isEmpty: true,
-          });
+          setIsEmpty(true);
           return;
         }
-        this.setState({
-          images: [...this.state.images, ...hits],
-          showLoadMore: this.state.page < Math.ceil(totalHits / 12),
-        });
+
+        setImages(prev => [...prev, ...hits]);
+        setShowLoadMore(page < Math.ceil(totalHits / 12));
       })
       .catch(error => {
-        this.setState({ error: `${error}` });
+        setError(error);
       })
-      .finally(() => this.setState({ isLoading: false }));
-  }
-
-  handleFormSubmit = query => {
-    this.setState({
-      searchQuery: query,
-      images: [],
-      page: 1,
-      showLoadMore: false,
-      // status: 'loading',
-      isEmpty: false,
-      error: '',
-    });
+      .finally(() => setIsLoading(false));
   };
 
-  openModal = largeImageURL => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-      largeImageURL: largeImageURL,
-    }));
+  const handleFormSubmit = query => {
+    setSearchQuery(query);
+    setImages([]);
+    setPage(1);
+    setShowLoadMore(false);
+    setIsEmpty(false);
+    setError('');
   };
 
-  closeModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-      largeImageURL: '',
-    }));
+  const openModal = largeImageURL => {
+    setShowModal(!showModal);
+    setLargeImageURL(largeImageURL);
   };
 
-  onLoadMore = () => {
-    this.setState(({ page }) => ({ page: page + 1 }));
+  const closeModal = () => {
+    setShowModal(!showModal);
+    setLargeImageURL('');
   };
 
-  render() {
-    const {
-      searchQuery,
-      images,
-      showModal,
-      largeImageURL,
-      isLoading,
-      error,
-      showLoadMore,
-      isEmpty,
-    } = this.state;
+  const onLoadMore = () => {
+    setPage(prev => prev + 1);
+  };
 
-    return (
-      <div className={css.app}>
-        <Searchbar onSubmit={this.handleFormSubmit} />
+  return (
+    <div className={css.app}>
+      <Searchbar onSubmit={handleFormSubmit} />
 
-        {error && <h2 className={css.error}>{error}</h2>}
+      {error && <h2 className={css.error}>{error}</h2>}
 
-        {isEmpty && (
-          <h2 className={css.error}>
-            Sorry, we don`t have image by this query: {searchQuery}
-          </h2>
-        )}
+      {isEmpty && (
+        <h2 className={css.error}>
+          Sorry, we don`t have image by this query: {searchQuery}
+        </h2>
+      )}
 
-        <ImageGallery images={images} openModal={this.openModal} />
+      <ImageGallery images={images} openModal={openModal} />
 
-        {showLoadMore && <Button onLoadMore={this.onLoadMore} />}
+      {showLoadMore && <Button onLoadMore={onLoadMore} />}
 
-        {isLoading && <Loader />}
+      {isLoading && <Loader />}
 
-        {showModal && (
-          <Modal closeModal={this.closeModal} largeImageURL={largeImageURL} />
-        )}
-      </div>
-    );
-  }
-}
+      {showModal && (
+        <Modal closeModal={closeModal} largeImageURL={largeImageURL} />
+      )}
+    </div>
+  );
+};
 
 export default App;
+
+// class App extends Component {
+//   state = {
+//     searchQuery: '',
+//     images: [],
+//     page: 1,
+//     showModal: false,
+//     largeImageURL: '',
+//     isLoading: false,
+//     error: '',
+//     showLoadMore: false,
+//     isEmpty: false,
+//   };
+
+//   componentDidUpdate(prevProps, prevState) {
+//     const prevQuery = prevState.searchQuery;
+//     const newQuery = this.state.searchQuery;
+//     const prevPage = prevState.page;
+//     const newPage = this.state.page;
+
+//     if (prevQuery !== newQuery || prevPage !== newPage) {
+//       this.handleGetImages(newQuery, newPage);
+//     }
+//   }
+
+// handleGetImages(searchQuery, page) {
+//   this.setState({ isLoading: true, showLoadMore: false });
+
+//   fetchData(searchQuery, page)
+//     .then(({ hits, totalHits }) => {
+//       if (hits.length === 0) {
+//         this.setState({
+//           isEmpty: true,
+//         });
+//         return;
+//       }
+//       this.setState({
+//         images: [...this.state.images, ...hits],
+//         showLoadMore: this.state.page < Math.ceil(totalHits / 12),
+//       });
+//     })
+//     .catch(error => {
+//       this.setState({ error: `${error}` });
+//     })
+//     .finally(() => this.setState({ isLoading: false }));
+// }
+
+//   handleFormSubmit = query => {
+//     this.setState({
+//       searchQuery: query,
+//       images: [],
+//       page: 1,
+//       showLoadMore: false,
+//       // status: 'loading',
+//       isEmpty: false,
+//       error: '',
+//     });
+//   };
+
+//   openModal = largeImageURL => {
+//     this.setState(({ showModal }) => ({
+//       showModal: !showModal,
+//       largeImageURL: largeImageURL,
+//     }));
+//   };
+
+//   closeModal = () => {
+//     this.setState(({ showModal }) => ({
+//       showModal: !showModal,
+//       largeImageURL: '',
+//     }));
+//   };
+
+//   onLoadMore = () => {
+//     this.setState(({ page }) => ({ page: page + 1 }));
+//   };
+
+//   render() {
+//     const {
+//       searchQuery,
+//       images,
+//       showModal,
+//       largeImageURL,
+//       isLoading,
+//       error,
+//       showLoadMore,
+//       isEmpty,
+//     } = this.state;
+
+//     return (
+//       <div className={css.app}>
+//         <Searchbar onSubmit={this.handleFormSubmit} />
+
+//         {error && <h2 className={css.error}>{error}</h2>}
+
+//         {isEmpty && (
+//           <h2 className={css.error}>
+//             Sorry, we don`t have image by this query: {searchQuery}
+//           </h2>
+//         )}
+
+//         <ImageGallery images={images} openModal={this.openModal} />
+
+//         {showLoadMore && <Button onLoadMore={this.onLoadMore} />}
+
+//         {isLoading && <Loader />}
+
+//         {showModal && (
+//           <Modal closeModal={this.closeModal} largeImageURL={largeImageURL} />
+//         )}
+//       </div>
+//     );
+//   }
+// }
