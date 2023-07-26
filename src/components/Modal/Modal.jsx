@@ -7,20 +7,19 @@ const modalRoot = document.querySelector('#modal-root');
 
 const Modal = ({ closeModal, largeImageURL }) => {
   useEffect(() => {
+    const closeModalEsc = event => {
+      if (event.code === 'Escape') {
+        closeModal();
+      }
+    };
+
     console.log('componentDidMount');
     window.addEventListener('keydown', closeModalEsc);
     return () => {
       console.log('componentWillUnmount');
       window.removeEventListener('keydown', closeModalEsc);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const closeModalEsc = event => {
-    if (event.code === 'Escape') {
-      closeModal();
-    }
-  };
+  }, [closeModal]);
 
   const onBackdropClick = event => {
     if (event.currentTarget === event.target) {
